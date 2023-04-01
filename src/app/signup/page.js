@@ -11,6 +11,7 @@ export default function Page() {
 
   return (
     <>
+    <title>Register</title>
       <Forms
         title={"Register new account"}
         hidden={"hidden"}

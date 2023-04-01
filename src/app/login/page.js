@@ -12,6 +12,7 @@ export default function Page() {
 
   return (
     <>
+    <title>Login</title>
       <Forms
         title={"Sign in to your account"}
         submit={"Log in"}
