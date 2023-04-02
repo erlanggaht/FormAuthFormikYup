@@ -1,9 +1,10 @@
 import { useFormik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import * as Yup from 'yup'
 import mark from '../../../public/icon/mark.svg'
+import { setCookie } from "nookies";
 
 export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,disabledInput}) {
 
@@ -40,7 +41,7 @@ export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,dis
     <>
     <div className={`h-screen max-h-screen p-4 ${loading}`}>
         <div className="flex justify-center">
-      <Image src={mark} width={100} height={100}/>
+      <Image src={mark} width={100} height={100} style={{height:"auto",width:"84px"}} alt="iconweb"/>
       </div>
       <div className="my-8">
       <h1 className="font-bold text-2xl text-neutral-50 text-center drop-shadow-md">{title}</h1>
@@ -52,14 +53,16 @@ export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,dis
           <div>
             <label htmlFor="username" className="pb-3 inline-block font-bold">Username</label>
             <input id="username" name="username" type="username" autoComplete="username" required className={`relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10  sm:text-sm sm:leading-6 px-4 
-            ${formik.errors.username ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit ${formik.values.username ? 'bg-ceklis' : ""} bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
+            ${formik.errors.username ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit ${formik.values.username ? pathname === '/login' ?  "" : "bg-ceklis" : ""} bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
             hover:shadow-sm`} placeholder="Username" disabled={disabledInput} value={formik.values.username} onChange={handleinput}/>
            {!pathname_condition && <p className="text-red-500 text-right">{formik.errors.username}</p>}
           </div>
           <div className="mt-6">
             <label htmlFor="password" className="pb-3 pt-6 inline-block font-bold">Password</label>
             <input id="password" name="password" type="password" autoComplete="current-password" required className={`relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 px-4
-             ${formik.errors.password ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit ${formik.values.password ? 'bg-ceklis' : ""} bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
+             ${formik.errors.password ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit
+              ${formik.values.username ? pathname === '/login' ?  "" : "bg-ceklis" : ""} 
+              bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
              hover:shadow-sm
             `} placeholder="Password" disabled={disabledInput}  value={formik.values.password}  onChange={handleinput}  />
            {!pathname_condition && <p className="text-red-500 text-right">{formik.errors.password}</p>}
