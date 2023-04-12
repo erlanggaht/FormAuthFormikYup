@@ -9,6 +9,10 @@ export default function Page() {
     setLoading(false);
   }, []);
 
+  const handleRegister = () => {
+    
+  }
+
   return (
     <>
     <title>Register</title>

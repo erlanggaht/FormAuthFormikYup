@@ -1,16 +1,19 @@
 import { useFormik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect, usePathname } from "next/navigation";
+import { useRouter, usePathname, redirect } from "next/navigation";
 import * as Yup from 'yup'
 import mark from '../../../public/icon/mark.svg'
-import { setCookie } from "nookies";
+import axios from "axios";
 
 export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,disabledInput}) {
 
  const pathname = usePathname()
+ const Router = useRouter()
 
- const pathname_condition = pathname === '/login'
+ const pathname_login = pathname === '/login'
+ const pathname_signup = pathname === '/signup'
+
 
  const formik = useFormik({
   initialValues : {
@@ -20,15 +23,60 @@ export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,dis
     hiddenConfirmSchema : ""
   },
   validationSchema : Yup.object({
-    username :  pathname_condition ? "" : Yup.string().required('username tidak boleh kosong').min(5,'username minimal 3 huruf').max(25,'username maksimal 25 huruf '),
-    password :  pathname_condition ? "" : Yup.string().required('password tidak boleh kosong').min(6,'password minimal 3 huruf').max(15,'password maksimal 15 huruf'),
-    confirmPassword : pathname_condition ? "" :Yup.string().oneOf([Yup.ref('password')],'konfirmasi password tidak cocok').required(),
+    username :  pathname_login ? "" : Yup.string().required('username tidak boleh kosong').min(5,'username minimal 3 huruf').max(25,'username maksimal 25 huruf '),
+    password :  pathname_login ? "" : Yup.string().required('password tidak boleh kosong').min(6,'password minimal 3 huruf').max(15,'password maksimal 15 huruf'),
+    confirmPassword : pathname_login ? "" :Yup.string().oneOf([Yup.ref('password')],'konfirmasi password tidak cocok').required(),
 
 
   }),
   onSubmit : values => {
+    const {username,password} = values
     formik.resetForm()
-    pathname_condition ? "" : alert ('berhasil daftar')
+
+
+    //PageLogin
+    if(pathname_login) {
+      axios({
+        url : "http://localhost:3002/masuk",
+        headers : {"Content-Type":"application/json"},
+        data : {name : username,password : password},
+        method : "post"
+      }).then((response)=>{
+        if(response.status == 200) Router.push('/')
+      })
+      .catch((err)=>{
+        const error_msg = err.response.data.msg
+        setTimeout(()=>{
+
+          alert(error_msg)
+        },10)
+      })
+    }
+
+    //Page Signup
+    if (pathname_signup) {
+        axios('http://localhost:3002/admin',{
+          method : "POST",
+          headers : {
+            "Content-Type" : "application/json"
+          },
+          data : {
+            name : username,
+            password : password,
+            confirmPassword: formik.values.confirmPassword          
+           }
+        }).then(response => {
+          if(response.status <= 200) {
+            alert('berhasil daftar')
+            setTimeout(()=>{
+  
+              Router.push('/login')
+            },10)
+          }
+        }).catch((error)=>{
+          console.log(error)
+        })         
+    }
   }
  })
 
@@ -55,7 +103,7 @@ export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,dis
             <input id="username" name="username" type="username" autoComplete="username" required className={`relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10  sm:text-sm sm:leading-6 px-4 
             ${formik.errors.username ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit ${formik.values.username ? pathname === '/login' ?  "" : "bg-ceklis" : ""} bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
             hover:shadow-sm`} placeholder="Username" disabled={disabledInput} value={formik.values.username} onChange={handleinput}/>
-           {!pathname_condition && <p className="text-red-500 text-right">{formik.errors.username}</p>}
+           {!pathname_login && <p className="text-red-500 text-right">{formik.errors.username}</p>}
           </div>
           <div className="mt-6">
             <label htmlFor="password" className="pb-3 pt-6 inline-block font-bold">Password</label>
@@ -65,13 +113,13 @@ export default function Forms({title,hidden,submit,hiddenConfirmPass,loading,dis
               bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
              hover:shadow-sm
             `} placeholder="Password" disabled={disabledInput}  value={formik.values.password}  onChange={handleinput}  />
-           {!pathname_condition && <p className="text-red-500 text-right">{formik.errors.password}</p>}
+           {!pathname_login && <p className="text-red-500 text-right">{formik.errors.password}</p>}
             <div className={hiddenConfirmPass}>
             <label htmlFor="confirmPassword" className="pb-3 pt-6 inline-block font-bold">Confirm Password</label>
             <input id="confirmPassword" name={pathname === '/login' ? 'hiddenConfirmSchema' : "confirmPassword"} type="confirmPassword" autoComplete="current-confirmPassword" className={`relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 sm:text-sm sm:leading-6 px-4
              ${formik.errors.confirmPassword ? 'ring-red-500 focus:ring-red-500 outline-none ' : `inherit ${formik.values.username ? 'bg-ceklis' : ""} bg-[length:29px_29px] bg-[right_.3rem_bottom_3px] bg-no-repeat`}
               hover:shadow-sm`} placeholder="Confirm password"  value={pathname === '/login' ? '' : formik.values.confirmPassword}  onChange={handleinput}   />
-           {!pathname_condition && <p className="text-red-500 text-right">{formik.errors.confirmPassword}</p>}
+           {!pathname_login && <p className="text-red-500 text-right">{formik.errors.confirmPassword}</p>}
             </div>
           </div>
         </div>
